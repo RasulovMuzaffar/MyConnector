@@ -1,18 +1,14 @@
 package nm.uty.demo;
 
-import nm.uty.demo.utils.MyRouter;
+//import nm.uty.demo.utils.MyRouter;
+
 import nm.uty.demo.utils.MyWatcher;
-import org.apache.camel.CamelContext;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 //@EnableAsync
@@ -34,7 +30,6 @@ public class DemoApplication {
     CommandLineRunner lookup(MyWatcher myWatcher) {
         return args -> {
             myWatcher.myWatcher();
-
         };
     }
 

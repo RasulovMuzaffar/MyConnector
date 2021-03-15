@@ -1,8 +1,8 @@
 package nm.uty.demo.service;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nm.uty.demo.pojo.MyData;
+import nm.uty.demo.utils.DataCache;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -19,13 +19,21 @@ import java.util.stream.Stream;
 @Service
 //@AllArgsConstructor
 public class ReaderServiceImpl {
-    private final String REG = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+\\d{3}\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
+    private final String HEADER922 = "\\(:922\\s+\\d{4}\\s+\\d{3,4}\\s+(?<idx>\\d{4}\\s{0,2}\\d{0,3}\\s{0,2}\\d{4})";
+    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+\\d{3}\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     private final String REG57 = "(?<idx>\\d{4}\\+\\s?\\d{0,3}\\+\\d{4})";
+
+    private final WriterServiceImpl writerService;
+    private final SenderServiceImpl senderService;
+    private final DataCache dataCache;
 
     private Pattern pattern;
     private Matcher matcher;
 
-    public ReaderServiceImpl() {
+    public ReaderServiceImpl(WriterServiceImpl writerService, SenderServiceImpl senderService, DataCache dataCache) {
+        this.writerService = writerService;
+        this.senderService = senderService;
+        this.dataCache = dataCache;
     }
 
     public void reader(String filePath) {
@@ -47,9 +55,9 @@ public class ReaderServiceImpl {
                 line = reader.readLine();
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.warn("FileNotFoundException: " + e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("IOException: " + e.getMessage());
         }
         router(filePath, sb.toString());
     }
@@ -79,16 +87,26 @@ public class ReaderServiceImpl {
         while (matcher.find()) {
             String idx = matcher.group("idx");
             indexes.add(idx);
+            dataCache.setIndexes(parseIdx(idx));
         }
-        System.out.println(indexes.size());
-        indexes.stream().forEach(System.out::println);
+//        System.out.println(indexes.size());
+//        indexes.stream().forEach(System.out::println);
+        writerService.writer(indexes);
     }
 
     public void reader922(String filePath) {
         log.info("reader922: " + filePath);
         StringBuilder sb = getStringBuilder(filePath);
 
-        pattern = Pattern.compile(REG, Pattern.MULTILINE);
+        pattern = Pattern.compile(HEADER922, Pattern.MULTILINE);
+        matcher = pattern.matcher(sb.toString());
+        String index = "";
+        while (matcher.find()) {
+            index = matcher.group("idx");
+//            dataCache.setIndexes(index);
+        }
+
+        pattern = Pattern.compile(REG922, Pattern.MULTILINE);
         matcher = pattern.matcher(sb.toString());
         List<MyData> myDataList = new ArrayList<>();
 
@@ -103,8 +121,9 @@ public class ReaderServiceImpl {
 //                System.out.println("Group " + i + ": " + matcher.group(i));
 //            }
         }
-        System.out.println(myDataList.size());
-        myDataList.stream().forEach(System.out::println);
+//        System.out.println(myDataList.size());
+//        myDataList.stream().forEach(System.out::println);
+        senderService.mySender(index, myDataList);
     }
 
     private StringBuilder getStringBuilder(String filePath) {
@@ -113,9 +132,14 @@ public class ReaderServiceImpl {
         try (Stream<String> stream = Files.lines(Paths.get(filePath), charset)) {
             stream.forEach(sb::append);
         } catch (IOException e) {
-//            e.printStackTrace();
-            log.warn("IOException for reader service");
+            log.warn("IOException for reader service: " + e.getMessage());
         }
         return sb;
     }
+
+
+    private String parseIdx(String idx) {
+        return idx.replace("+", " ").replace("  ", " ");
+    }
+
 }

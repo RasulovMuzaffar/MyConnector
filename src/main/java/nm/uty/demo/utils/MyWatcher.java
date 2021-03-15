@@ -45,6 +45,7 @@ public class MyWatcher {
                     System.out.println(
                             "Event kind:" + event.kind()
                                     + ". File affected: " + event.context() + ".");
+                    Thread.sleep(1000);
                     readerService.reader(inPath + "/" + event.context());
 //                    Reader reader = new Reader();
 //                    reader.reader(path + "/" + event.context());
