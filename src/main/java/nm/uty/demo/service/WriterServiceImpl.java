@@ -30,16 +30,17 @@ public class WriterServiceImpl {
 
     public void writer(List<String> list) {
         dataCache.getIndexes().stream().forEach(l -> {
-            Path path = Paths.get(myPath + "/" + l);
-            try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
-                writer.write(l);
-                Thread.sleep(1000);
-            } catch (IOException ex) {
-                log.warn("IOException: " + ex.getMessage());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (dataCache.getIndexesWagons().get(l) == null || dataCache.getIndexesWagons().get(l).isEmpty()) {
+                Path path = Paths.get(myPath + "/" + l);
+                try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
+                    writer.write(l);
+                    Thread.sleep(1000);
+                } catch (IOException ex) {
+                    log.warn("IOException: " + ex.getMessage());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
-
     }
 }

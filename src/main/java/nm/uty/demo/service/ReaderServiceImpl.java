@@ -10,14 +10,15 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
-//@AllArgsConstructor
 public class ReaderServiceImpl {
     private final String HEADER922 = "\\(:922\\s+\\d{4}\\s+\\d{3,4}\\s+(?<idx>\\d{4}\\s{0,2}\\d{0,3}\\s{0,2}\\d{4})";
     private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+\\d{3}\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
@@ -123,7 +124,17 @@ public class ReaderServiceImpl {
         }
 //        System.out.println(myDataList.size());
 //        myDataList.stream().forEach(System.out::println);
+
+        if (dataCache.getIndexesWagons().get(index).isEmpty()) {
+            Map<String, List<MyData>> map = new HashMap<>();
+            map.put(index, myDataList);
+            dataCache.setIndexesWagons(map);
+        }
         senderService.mySender(index, myDataList);
+
+//        else
+//            senderService.mySender(index, myDataList);
+
     }
 
     private StringBuilder getStringBuilder(String filePath) {
