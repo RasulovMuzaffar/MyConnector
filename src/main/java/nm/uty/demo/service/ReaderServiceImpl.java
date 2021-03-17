@@ -90,8 +90,6 @@ public class ReaderServiceImpl {
             indexes.add(idx);
             dataCache.setIndexes(parseIdx(idx));
         }
-//        System.out.println(indexes.size());
-//        indexes.stream().forEach(System.out::println);
         writerService.writer(indexes);
     }
 
@@ -118,23 +116,14 @@ public class ReaderServiceImpl {
             mydata.setTara(tara);
             mydata.setWNumber(wNumber);
             myDataList.add(mydata);
-//            for (int i = 1; i <= matcher.groupCount(); i++) {
-//                System.out.println("Group " + i + ": " + matcher.group(i));
-//            }
         }
-//        System.out.println(myDataList.size());
-//        myDataList.stream().forEach(System.out::println);
 
-        if (dataCache.getIndexesWagons().get(index).isEmpty()) {
+        if (dataCache.getIndexesWagons().get(index) == null || dataCache.getIndexesWagons().get(index).isEmpty()) {
             Map<String, List<MyData>> map = new HashMap<>();
             map.put(index, myDataList);
             dataCache.setIndexesWagons(map);
         }
         senderService.mySender(index, myDataList);
-
-//        else
-//            senderService.mySender(index, myDataList);
-
     }
 
     private StringBuilder getStringBuilder(String filePath) {
@@ -152,5 +141,4 @@ public class ReaderServiceImpl {
     private String parseIdx(String idx) {
         return idx.replace("+", " ").replace("  ", " ");
     }
-
 }

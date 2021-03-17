@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-//@EnableAsync
 @EnableScheduling
-//@PropertySource("classpath:application.properties")
 public class DemoApplication {
 
     public static void main(String[] args) throws Exception {
@@ -31,5 +29,4 @@ public class DemoApplication {
             myWatcher.myWatcher();
         };
     }
-
 }

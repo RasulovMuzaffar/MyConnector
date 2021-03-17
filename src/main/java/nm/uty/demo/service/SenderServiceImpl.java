@@ -70,35 +70,37 @@ public class SenderServiceImpl {
         headers.add("Authorization", "Bearer " + token);
 
 
-        dataCache.getIndexesWagons().entrySet().forEach(entry -> {
-                    if (!dataCache.getSuccessSendIndexes().contains(entry.getKey()))
-                        try {
-                            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-                            String jsonData = ow.writeValueAsString(entry.getValue());
-                            HttpEntity<String> request = new HttpEntity<>(jsonData, headers);
+        for (Map.Entry<String, List<MyData>> entry : dataCache.getIndexesWagons().entrySet()) {
+            String key = entry.getKey();
+            List<MyData> value = entry.getValue();
+            if (!dataCache.getSuccessSendIndexes().contains(key))
+                try {
+                    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                    String jsonData = ow.writeValueAsString(value);
+                    HttpEntity<String> request = new HttpEntity<>(jsonData, headers);
 
-                            ResponseEntity<String> response = restTemplate.postForEntity(
-                                    "http://94.237.100.246:8001/api/paper/upload_lines", request, String.class);
+                    ResponseEntity<String> response = restTemplate.postForEntity(
+                            "http://94.237.100.246:8001/api/paper/upload_lines", request, String.class);
 
-                            if (response.getStatusCode().equals(HttpStatus.OK)) {
-                                dataCache.delIndex(entry.getKey());
-                                dataCache.getIndexesWagons().remove(entry.getKey());
-                                dataCache.setSuccessSendIndexes(entry.getKey());
-                            } else {
-                                Map<String, List<MyData>> map = new HashMap<>();
-                                map.put(entry.getKey(), entry.getValue());
-                                dataCache.setIndexesWagons(map);
-                            }
-                            System.out.println(request.getBody());
-                        } catch (JsonProcessingException e) {
-                            log.warn("JsonProcessingException: " + e.getMessage());
-                        }
-                    else {
-                        dataCache.getIndexesWagons().remove(entry.getKey());
-                        dataCache.delIndex(entry.getKey());
+                    if (response.getStatusCode().equals(HttpStatus.OK)) {
+                        dataCache.delIndex(key);
+                        dataCache.getIndexesWagons().remove(key);
+                        dataCache.setSuccessSendIndexes(key);
+                    } else {
+                        Map<String, List<MyData>> map = new HashMap<>();
+                        map.put(key, value);
+                        dataCache.setIndexesWagons(map);
                     }
+                    log.info(request.getBody());
+                } catch (JsonProcessingException e) {
+                    log.warn("JsonProcessingException: " + e.getMessage());
                 }
-        );
+            else {
+                dataCache.getIndexesWagons().remove(key);
+                dataCache.delIndex(key);
+            }
+        }
+        log.info("So GOOD!!!");
 
 
 //        if (response.getStatusCode().equals(HttpStatus.OK)) {

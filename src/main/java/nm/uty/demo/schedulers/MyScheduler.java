@@ -26,18 +26,26 @@ public class MyScheduler {
         this.dataCache = dataCache;
     }
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void scheduleFixedDelayTask() {
         log.info("start scheduler");
 //        Path path = Paths.get("src/main/resources/qwerty.txt");
 //        if (!dataCache.getIndexes().isEmpty())
 //            dataCache.getIndexes().forEach(i -> {
-        Path path = Paths.get(myPath + "\\1");
-        try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
-            writer.write("1");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+                Path path = Paths.get(myPath + "/1");
+                try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
+                    writer.write("1");
+                    log.info("request spr57 has been sent to ASOUP!");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log.warn("InterruptedException: " + e.getMessage());
+                }
 //            });
+//        else
+//            log.info("dataCache is empty!!!");
     }
 }
