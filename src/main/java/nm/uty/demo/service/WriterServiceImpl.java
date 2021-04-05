@@ -11,13 +11,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @Slf4j
 public class WriterServiceImpl {
-    @Value(value = "${outputfolder}")
+    @Value(value = "${outputFolder}")
     private String myPath;
 
     private SenderServiceImpl senderService;
@@ -38,7 +37,7 @@ public class WriterServiceImpl {
                 } catch (IOException ex) {
                     log.warn("IOException: " + ex.getMessage());
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.warn("InterruptedException: " + e.getMessage());
                 }
             }
         });

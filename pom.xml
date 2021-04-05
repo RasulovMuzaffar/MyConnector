@@ -10,16 +10,27 @@
     </parent>
     <groupId>nm.uty</groupId>
     <artifactId>demo</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>v0.0.1</version>
     <name>demo</name>
     <description>Demo project for Spring Boot</description>
+    <packaging>jar</packaging>
     <properties>
         <java.version>8</java.version>
+<!--        <deploy.wildfly.host>127.0.0.1</deploy.wildfly.host>-->
+<!--        <deploy.wildfly.port>9990</deploy.wildfly.port>-->
+<!--        <deploy.wildfly.username>root</deploy.wildfly.username>-->
+<!--        <deploy.wildfly.password>20011987</deploy.wildfly.password>-->
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.springframework.boot</groupId>-->
+<!--                    <artifactId>spring-boot-starter-logging</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
         </dependency>
 
         <dependency>
@@ -37,6 +48,11 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
 
 <!--        <dependency>-->
@@ -60,6 +76,30 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.wildfly.plugins</groupId>-->
+<!--                <artifactId>wildfly-maven-plugin</artifactId>-->
+<!--                <version>2.0.2.Final</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>install</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>deploy</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <filename>${project.build.finalName}.war</filename>-->
+<!--                    <hostname>${deploy.wildfly.host}</hostname>-->
+<!--                    <port>${deploy.wildfly.port}</port>-->
+<!--                    <username>${deploy.wildfly.username}</username>-->
+<!--                    <password>${deploy.wildfly.password}</password>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

@@ -19,8 +19,10 @@ import java.nio.file.Paths;
 public class MyScheduler {
     private final DataCache dataCache;
 
-    @Value(value = "${outputfolder}")
-    private String myPath;// = "C:\\Users\\m.rasulov\\Desktop\\MY\\testFolder\\out";
+    @Value(value = "${outputFolder}")
+    private String outputPath;// = "C:\\Users\\m.rasulov\\Desktop\\MY\\testFolder\\out";
+    @Value(value = "${stationCode}")
+    private int stCode;
 
     public MyScheduler(DataCache dataCache) {
         this.dataCache = dataCache;
@@ -32,20 +34,20 @@ public class MyScheduler {
 //        Path path = Paths.get("src/main/resources/qwerty.txt");
 //        if (!dataCache.getIndexes().isEmpty())
 //            dataCache.getIndexes().forEach(i -> {
-                Path path = Paths.get(myPath + "/1");
-                try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
-                    writer.write("1");
-                    log.info("request spr57 has been sent to ASOUP!");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    log.warn("InterruptedException: " + e.getMessage());
-                }
+        Path path = Paths.get(outputPath + "/0102000.txt");
+        try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
+            writer.write(String.format("(:212 72010 7201:57:)", stCode));
+            log.info("request spr57 has been sent to ASOUP!");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            log.warn("InterruptedException: " + e.getMessage());
+        }
 //            });
 //        else
-//            log.info("dataCache is empty!!!");
+            log.info("dataCache is empty!!!");
     }
 }

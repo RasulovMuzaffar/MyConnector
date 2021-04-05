@@ -10,7 +10,7 @@ import java.nio.file.*;
 @Component
 public class MyWatcher {
 //    private Reader reader;
-    @Value("${monitoring-folder}")
+    @Value("${inputFolder}")
     private String inPath;
 
     private ReaderServiceImpl readerService;

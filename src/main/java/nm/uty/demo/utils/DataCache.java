@@ -9,8 +9,8 @@ import java.util.*;
 public class DataCache {
 
     private Map<String, List<MyData>> indexesWagons = new HashMap<>();
-    private Set<String> indexes = new HashSet<>();
-    private Set<String> successSendIndexes = new HashSet<>();
+    private final Set<String> indexes = new HashSet<>();
+    private final Set<String> successSendIndexes = new HashSet<>();
 
     public void setIndexes(String index) {
         indexes.add(index);
