@@ -1,7 +1,8 @@
 package nm.uty.demo.service;
 
 import lombok.extern.slf4j.Slf4j;
-import nm.uty.demo.pojo.MyData;
+import nm.uty.demo.pojo.Train;
+import nm.uty.demo.pojo.Wagon;
 import nm.uty.demo.utils.DataCache;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ import java.util.stream.Stream;
 @Service
 public class ReaderServiceImpl {
     private final String HEADER922 = "\\(:922\\s+\\d{4}\\s+\\d{3,4}\\s+(?<idx>\\d{4}\\s{0,2}\\d{0,3}\\s{0,2}\\d{4})";
-    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+\\d{3}\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
+    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     private final String REG57 = "(?<idx>\\d{4}\\+\\s?\\d{0,3}\\+\\d{4})";
 
     private final WriterServiceImpl writerService;
@@ -37,7 +38,7 @@ public class ReaderServiceImpl {
         this.dataCache = dataCache;
     }
 
-    public void reader(String filePath) {
+    public boolean reader(String filePath) {
         StringBuilder sb = new StringBuilder();
         try {
             File file = new File(filePath);
@@ -57,10 +58,13 @@ public class ReaderServiceImpl {
             }
         } catch (FileNotFoundException e) {
             log.warn("FileNotFoundException: " + e.getMessage());
+            return false;
         } catch (IOException e) {
             log.warn("IOException: " + e.getMessage());
+            return false;
         }
         router(filePath, sb.toString());
+        return true;
     }
 
     private void router(String filePath, String str) {
@@ -95,6 +99,9 @@ public class ReaderServiceImpl {
 
     public void reader922(String filePath) {
         log.info("reader922: " + filePath);
+
+        Train train = new Train();
+
         StringBuilder sb = getStringBuilder(filePath);
 
         pattern = Pattern.compile(HEADER922, Pattern.MULTILINE);
@@ -105,25 +112,32 @@ public class ReaderServiceImpl {
 //            dataCache.setIndexes(index);
         }
 
+        train.setTrainIndex(index);
+
         pattern = Pattern.compile(REG922, Pattern.MULTILINE);
         matcher = pattern.matcher(sb.toString());
-        List<MyData> myDataList = new ArrayList<>();
+        List<Wagon> wagonList = new ArrayList<>();
 
         while (matcher.find()) {
             Integer wNumber = Integer.parseInt(matcher.group("wNumber"));
             Integer tara = Integer.parseInt(matcher.group("tara")) * 100;
-            MyData mydata = new MyData();
-            mydata.setTara(tara);
-            mydata.setWNumber(wNumber);
-            myDataList.add(mydata);
+            Integer netto = Integer.parseInt(matcher.group("netto")) * 1000;
+
+            Wagon wagon = new Wagon();
+            wagon.setTara(tara);
+            wagon.setWNumber(wNumber);
+            wagon.setNetto(netto);
+            wagonList.add(wagon);
         }
 
-        if (dataCache.getIndexesWagons().get(index) == null || dataCache.getIndexesWagons().get(index).isEmpty()) {
-            Map<String, List<MyData>> map = new HashMap<>();
-            map.put(index, myDataList);
+        train.setWagons(wagonList);
+
+        if (dataCache.getIndexesWagons().get(index) == null || dataCache.getIndexesWagons().get(index).getWagons().isEmpty()) {
+            Map<String, Train> map = new HashMap<>();
+            map.put(index, train);
             dataCache.setIndexesWagons(map);
         }
-        senderService.mySender(index, myDataList);
+        senderService.mySender(index, train);
     }
 
     private StringBuilder getStringBuilder(String filePath) {
@@ -134,6 +148,14 @@ public class ReaderServiceImpl {
         } catch (IOException e) {
             log.warn("IOException for reader service: " + e.getMessage());
         }
+
+        try {
+            if (Files.isWritable(Paths.get(filePath)))
+                Files.delete(Paths.get(filePath));
+        } catch (IOException e) {
+            log.warn("IOException is: {}", e.getMessage());
+        }
+
         return sb;
     }
 

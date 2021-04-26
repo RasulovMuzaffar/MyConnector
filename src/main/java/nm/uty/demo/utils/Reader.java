@@ -1,6 +1,6 @@
 //package nm.uty.demo.utils;
 //
-//import nm.uty.demo.pojo.MyData;
+//import nm.uty.demo.pojo.Wagon;
 //import org.springframework.stereotype.Component;
 //
 //import java.io.IOException;
@@ -34,12 +34,12 @@
 //
 //        final Pattern pattern = Pattern.compile(REG, Pattern.MULTILINE);
 //        final Matcher matcher = pattern.matcher(sb.toString());
-//        List<MyData> myDataList = new ArrayList<>();
+//        List<Wagon> myDataList = new ArrayList<>();
 //
 //        while (matcher.find()) {
 //            Integer wNumber = Integer.parseInt(matcher.group("wNumber"));
 //            Integer tara = Integer.parseInt(matcher.group("tara")) * 100;
-//            MyData mydata = new MyData();
+//            Wagon mydata = new Wagon();
 //            mydata.setTara(tara);
 //            mydata.setWNumber(wNumber);
 //            myDataList.add(mydata);

@@ -1,17 +1,21 @@
 package nm.uty.demo.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import nm.uty.demo.service.ReaderServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
 @Component
+@Slf4j
 public class MyWatcher {
-//    private Reader reader;
+    //    private Reader reader;
     @Value("${inputFolder}")
     private String inPath;
+
 
     private ReaderServiceImpl readerService;
 
@@ -40,13 +44,16 @@ public class MyWatcher {
 //                    StandardWatchEventKinds.ENTRY_MODIFY);
 
             WatchKey key;
+            String filePath = "";
             while ((key = watchService.take()) != null) {
                 for (WatchEvent<?> event : key.pollEvents()) {
                     System.out.println(
                             "Event kind:" + event.kind()
                                     + ". File affected: " + event.context() + ".");
-                    Thread.sleep(1000);
-                    readerService.reader(inPath + "/" + event.context());
+                    log.info("Event kind:" + event.kind()
+                            + ". File affected: " + event.context() + ".");
+                    Thread.sleep(3000);
+                    readerService.reader(inPath + File.separator + event.context());
 //                    Reader reader = new Reader();
 //                    reader.reader(path + "/" + event.context());
                 }

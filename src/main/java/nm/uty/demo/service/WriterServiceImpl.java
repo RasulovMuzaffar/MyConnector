@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -18,6 +19,11 @@ import java.util.List;
 public class WriterServiceImpl {
     @Value(value = "${outputFolder}")
     private String myPath;
+    @Value(value = "${stCL}")
+    private int stCodeLarge;
+    @Value(value = "${fn}")
+    private String fileName;
+
 
     private SenderServiceImpl senderService;
     private final DataCache dataCache;
@@ -28,18 +34,23 @@ public class WriterServiceImpl {
     }
 
     public void writer(List<String> list) {
-        dataCache.getIndexes().stream().forEach(l -> {
-            if (dataCache.getIndexesWagons().get(l) == null || dataCache.getIndexesWagons().get(l).isEmpty()) {
-                Path path = Paths.get(myPath + "/" + l);
+        dataCache.getIndexes().stream().forEach(idx -> {
+            if (dataCache.getIndexesWagons().get(idx) == null || dataCache.getIndexesWagons().get(idx).getWagons().isEmpty()) {
+                Path path = Paths.get(myPath + File.separator + fileName);
                 try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
-                    writer.write(l);
-                    Thread.sleep(1000);
+                    log.info(String.format("(:213 %d:%s 922:)", stCodeLarge, idx));
+                    writer.write(String.format("(:213 %d:%s 922:)", stCodeLarge, idx));
+
                 } catch (IOException ex) {
                     log.warn("IOException: " + ex.getMessage());
-                } catch (InterruptedException e) {
-                    log.warn("InterruptedException: " + e.getMessage());
                 }
             }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log.warn("InterruptedException: " + e.getMessage());
+            }
         });
+        log.info("All idxs is sended to ASOUP");
     }
 }

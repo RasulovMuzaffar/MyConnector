@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.extern.slf4j.Slf4j;
-import nm.uty.demo.pojo.MyData;
+import nm.uty.demo.pojo.Train;
+import nm.uty.demo.pojo.Wagon;
 import nm.uty.demo.utils.DataCache;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,28 +31,33 @@ public class SenderServiceImpl {
     }
 
     public String getToken() {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("username", "johndoe");
-        map.add("password", "secret");
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "http://94.237.100.246:8001/api/login", request, String.class);
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            JSONParser parser = new JSONParser();
-            try {
-                JSONObject object = (JSONObject) parser.parse(response.getBody());
-                return String.valueOf(object.get("access_token"));
-            } catch (ParseException e) {
-                log.warn("ParseException: " + e.getMessage());
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+            map.add("username", "johndoe");
+            map.add("password", "secret");
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "http://94.237.100.246:8001/api/login", request, String.class);
+            if (response.getStatusCode().equals(HttpStatus.OK)) {
+                JSONParser parser = new JSONParser();
+                log.info("token received successfully!");
+                try {
+                    JSONObject object = (JSONObject) parser.parse(response.getBody());
+                    return String.valueOf(object.get("access_token"));
+                } catch (ParseException e) {
+                    log.warn("ParseException: " + e.getMessage());
+                }
             }
+        } catch (Exception e) {
+            log.warn("getToken exception: {}", e.getMessage());
         }
         return null;
     }
 
-    public void mySender(String index, List<MyData> data) {
+    public void mySender(String index, Train train) {
         String token = getToken();
         if (token == null) {
             log.warn("token is null!");
@@ -70,9 +76,10 @@ public class SenderServiceImpl {
         headers.add("Authorization", "Bearer " + token);
 
 
-        for (Map.Entry<String, List<MyData>> entry : dataCache.getIndexesWagons().entrySet()) {
+        for (Map.Entry<String, Train> entry : dataCache.getIndexesWagons().entrySet()) {
             String key = entry.getKey();
-            List<MyData> value = entry.getValue();
+            Train value = entry.getValue();
+            System.out.println(train);
             if (!dataCache.getSuccessSendIndexes().contains(key))
                 try {
                     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -87,11 +94,12 @@ public class SenderServiceImpl {
                         dataCache.getIndexesWagons().remove(key);
                         dataCache.setSuccessSendIndexes(key);
                     } else {
-                        Map<String, List<MyData>> map = new HashMap<>();
+                        Map<String, Train> map = new HashMap<>();
                         map.put(key, value);
                         dataCache.setIndexesWagons(map);
                     }
-                    log.info(request.getBody());
+//                    log.info(request.getBody());
+                    log.info("data with idx: {}, is sended to remote service!", key);
                 } catch (JsonProcessingException e) {
                     log.warn("JsonProcessingException: " + e.getMessage());
                 }

@@ -1,6 +1,7 @@
 package nm.uty.demo.utils;
 
-import nm.uty.demo.pojo.MyData;
+import nm.uty.demo.pojo.Train;
+import nm.uty.demo.pojo.Wagon;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -8,7 +9,7 @@ import java.util.*;
 @Component
 public class DataCache {
 
-    private Map<String, List<MyData>> indexesWagons = new HashMap<>();
+    private Map<String, Train> indexesWagons = new HashMap<>();
     private final Set<String> indexes = new HashSet<>();
     private final Set<String> successSendIndexes = new HashSet<>();
 
@@ -24,11 +25,11 @@ public class DataCache {
         indexes.remove(index);
     }
 
-    public Map<String, List<MyData>> getIndexesWagons() {
+    public Map<String, Train> getIndexesWagons() {
         return indexesWagons;
     }
 
-    public void setIndexesWagons(Map<String, List<MyData>> indexesWagons) {
+    public void setIndexesWagons(Map<String, Train> indexesWagons) {
         this.indexesWagons = indexesWagons;
     }
 
