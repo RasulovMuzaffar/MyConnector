@@ -52,10 +52,8 @@ public class MyWatcher {
                                     + ". File affected: " + event.context() + ".");
                     log.info("Event kind:" + event.kind()
                             + ". File affected: " + event.context() + ".");
-                    Thread.sleep(3000);
                     readerService.reader(inPath + File.separator + event.context());
-//                    Reader reader = new Reader();
-//                    reader.reader(path + "/" + event.context());
+                    Thread.sleep(3000);
                 }
                 key.reset();
             }

@@ -40,7 +40,7 @@ public class SenderServiceImpl {
             map.add("password", "secret");
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    "http://94.237.100.246:8001/api/login", request, String.class);
+                    "http://213.230.96.187:8000/api/login", request, String.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 JSONParser parser = new JSONParser();
                 log.info("token received successfully!");
@@ -79,15 +79,14 @@ public class SenderServiceImpl {
         for (Map.Entry<String, Train> entry : dataCache.getIndexesWagons().entrySet()) {
             String key = entry.getKey();
             Train value = entry.getValue();
-            System.out.println(train);
+//            System.out.println(train);
             if (!dataCache.getSuccessSendIndexes().contains(key))
                 try {
                     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
                     String jsonData = ow.writeValueAsString(value);
                     HttpEntity<String> request = new HttpEntity<>(jsonData, headers);
-
                     ResponseEntity<String> response = restTemplate.postForEntity(
-                            "http://94.237.100.246:8001/api/paper/upload_lines", request, String.class);
+                            "http://213.230.96.187:8000/api/paper/upload_lines", request, String.class);
 
                     if (response.getStatusCode().equals(HttpStatus.OK)) {
                         dataCache.delIndex(key);

@@ -112,32 +112,33 @@ public class ReaderServiceImpl {
 //            dataCache.setIndexes(index);
         }
 
-        train.setTrainIndex(index);
+        if (!index.equals("")) {
+            train.setTrainIndex(index);
+            pattern = Pattern.compile(REG922, Pattern.MULTILINE);
+            matcher = pattern.matcher(sb.toString());
+            List<Wagon> wagonList = new ArrayList<>();
 
-        pattern = Pattern.compile(REG922, Pattern.MULTILINE);
-        matcher = pattern.matcher(sb.toString());
-        List<Wagon> wagonList = new ArrayList<>();
+            while (matcher.find()) {
+                Integer wNumber = Integer.parseInt(matcher.group("wNumber"));
+                Integer tara = Integer.parseInt(matcher.group("tara")) * 100;
+                Integer netto = Integer.parseInt(matcher.group("netto")) * 1000;
 
-        while (matcher.find()) {
-            Integer wNumber = Integer.parseInt(matcher.group("wNumber"));
-            Integer tara = Integer.parseInt(matcher.group("tara")) * 100;
-            Integer netto = Integer.parseInt(matcher.group("netto")) * 1000;
+                Wagon wagon = new Wagon();
+                wagon.setTara(tara);
+                wagon.setWNumber(wNumber);
+                wagon.setNetto(netto);
+                wagonList.add(wagon);
+            }
 
-            Wagon wagon = new Wagon();
-            wagon.setTara(tara);
-            wagon.setWNumber(wNumber);
-            wagon.setNetto(netto);
-            wagonList.add(wagon);
-        }
+            train.setWagons(wagonList);
 
-        train.setWagons(wagonList);
-
-        if (dataCache.getIndexesWagons().get(index) == null || dataCache.getIndexesWagons().get(index).getWagons().isEmpty()) {
-            Map<String, Train> map = new HashMap<>();
-            map.put(index, train);
-            dataCache.setIndexesWagons(map);
-        }
-        senderService.mySender(index, train);
+            if (dataCache.getIndexesWagons().get(index) == null || dataCache.getIndexesWagons().get(index).getWagons().isEmpty()) {
+                Map<String, Train> map = new HashMap<>();
+                map.put(index, train);
+                dataCache.setIndexesWagons(map);
+            }
+            senderService.mySender(index, train);
+        } else log.info("The file does not contain the required data {}", filePath);
     }
 
     private StringBuilder getStringBuilder(String filePath) {

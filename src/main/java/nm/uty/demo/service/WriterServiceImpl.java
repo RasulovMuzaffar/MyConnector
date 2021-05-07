@@ -46,7 +46,7 @@ public class WriterServiceImpl {
                 }
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 log.warn("InterruptedException: " + e.getMessage());
             }
