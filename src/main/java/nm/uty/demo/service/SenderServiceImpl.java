@@ -10,6 +10,7 @@ import nm.uty.demo.utils.DataCache;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -24,6 +25,10 @@ import java.util.Map;
 @Slf4j
 public class SenderServiceImpl {
 
+    @Value(value = "${remoteServer}")
+    private String remoteServer;
+    @Value(value = "${remoteServerPort}")
+    private String remoteServerPort;
     private final DataCache dataCache;
 
     public SenderServiceImpl(DataCache dataCache) {
@@ -40,7 +45,7 @@ public class SenderServiceImpl {
             map.add("password", "secret");
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    "http://213.230.96.187:8000/api/login", request, String.class);
+                    String.format("http://%s:%s/api/login", remoteServer.replace("_", "."), remoteServerPort), request, String.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 JSONParser parser = new JSONParser();
                 log.info("token received successfully!");
@@ -86,7 +91,9 @@ public class SenderServiceImpl {
                     String jsonData = ow.writeValueAsString(value);
                     HttpEntity<String> request = new HttpEntity<>(jsonData, headers);
                     ResponseEntity<String> response = restTemplate.postForEntity(
-                            "http://213.230.96.187:8000/api/paper/upload_lines", request, String.class);
+                            String.format("http://%s:%s/api/paper/upload_lines", remoteServer.replace("_", "."), remoteServerPort),
+                            request,
+                            String.class);
 
                     if (response.getStatusCode().equals(HttpStatus.OK)) {
                         dataCache.delIndex(key);
