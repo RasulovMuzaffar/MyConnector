@@ -22,7 +22,8 @@ import java.util.stream.Stream;
 @Service
 public class ReaderServiceImpl {
     private final String HEADER922 = "\\(:922\\s+\\d{4}\\s+\\d{3,4}\\s+(?<idx>\\d{4}\\s{0,2}\\d{0,3}\\s{0,2}\\d{4})";
-    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
+    private final String REG922 = "(?<no>\\d{2})\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+(?<destinationStation>\\d{5})\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
+    //    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     private final String REG57 = "(?<idx>\\d{4}\\+\\s?\\d{0,3}\\+\\d{4})";
 
     private final WriterServiceImpl writerService;
@@ -119,14 +120,18 @@ public class ReaderServiceImpl {
             List<Wagon> wagonList = new ArrayList<>();
 
             while (matcher.find()) {
+                Integer no = Integer.parseInt(matcher.group("no"));
                 Integer wNumber = Integer.parseInt(matcher.group("wNumber"));
                 Integer tara = Integer.parseInt(matcher.group("tara")) * 100;
                 Integer netto = Integer.parseInt(matcher.group("netto")) * 1000;
+                Integer destinationStation = Integer.parseInt(matcher.group("destinationStation"));
 
                 Wagon wagon = new Wagon();
+                wagon.setNo(no);
                 wagon.setTara(tara);
                 wagon.setWNumber(wNumber);
                 wagon.setNetto(netto);
+                wagon.setDestinationStation(destinationStation);
                 wagonList.add(wagon);
             }
 
