@@ -3,6 +3,7 @@ package nm.uty.demo.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nm.uty.demo.pojo.Train;
 import nm.uty.demo.pojo.Wagon;
@@ -23,17 +24,19 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SenderServiceImpl {
 
     @Value(value = "${remoteServer}")
     private String remoteServer;
     @Value(value = "${remoteServerPort}")
     private String remoteServerPort;
-    private final DataCache dataCache;
+    @Value(value = "${remoteServerLogin}")
+    private String login;
+    @Value(value = "${remoteServerPassword}")
+    private String password;
 
-    public SenderServiceImpl(DataCache dataCache) {
-        this.dataCache = dataCache;
-    }
+    final DataCache dataCache;
 
     public String getToken() {
         try {
@@ -41,8 +44,10 @@ public class SenderServiceImpl {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("username", "johndoe");
-            map.add("password", "secret");
+//            map.add("username", "johndoe");
+//            map.add("password", "secret");
+            map.add("username", login);
+            map.add("password", password);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(
                     String.format("http://%s:%s/api/login", remoteServer.replace("_", "."), remoteServerPort), request, String.class);

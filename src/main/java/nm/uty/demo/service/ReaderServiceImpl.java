@@ -1,9 +1,11 @@
 package nm.uty.demo.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nm.uty.demo.pojo.Train;
 import nm.uty.demo.pojo.Wagon;
 import nm.uty.demo.utils.DataCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -20,43 +22,41 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ReaderServiceImpl {
     private final String HEADER922 = "\\(:922\\s+\\d{4}\\s+\\d{3,4}\\s+(?<idx>\\d{4}\\s{0,2}\\d{0,3}\\s{0,2}\\d{4})";
-    private final String REG922 = "(?<no>\\d{2})\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+(?<destinationStation>\\d{5})\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
+    private final String REG922 = "(?<no>\\d{2})\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+(?<destinationStation>\\d{5})\\s+\\d{5}\\s+(?<cargoCode>\\d{4})\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     //    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     private final String REG57 = "(?<idx>\\d{4}\\+\\s?\\d{0,3}\\+\\d{4})";
 
-    private final WriterServiceImpl writerService;
-    private final SenderServiceImpl senderService;
-    private final DataCache dataCache;
+    final WriterServiceImpl writerService;
+    final SenderServiceImpl senderService;
+    final DataCache dataCache;
 
     private Pattern pattern;
     private Matcher matcher;
 
-    public ReaderServiceImpl(WriterServiceImpl writerService, SenderServiceImpl senderService, DataCache dataCache) {
-        this.writerService = writerService;
-        this.senderService = senderService;
-        this.dataCache = dataCache;
-    }
 
     public boolean reader(String filePath) {
         StringBuilder sb = new StringBuilder();
-        try {
-            File file = new File(filePath);
-            //создаем объект FileReader для объекта File
-            FileReader fr = new FileReader(file);
-            //создаем BufferedReader с существующего FileReader для построчного считывания
-            BufferedReader reader = new BufferedReader(fr);
-            // считаем сначала первую строку
-            String line = reader.readLine();
-            while (line != null) {
-                if (!line.equals("")) {
-                    sb.append(line);
-                    break;
-                }
-                // считываем остальные строки в цикле
-                line = reader.readLine();
-            }
+        try (Stream<String> lines = Files.lines(Paths.get(filePath), Charset.forName("CP866"))) {
+            lines.forEach(sb::append);
+//        try {
+//            File file = new File(filePath);
+//            //создаем объект FileReader для объекта File
+//            FileReader fr = new FileReader(file);
+//            //создаем BufferedReader с существующего FileReader для построчного считывания
+//            BufferedReader reader = new BufferedReader(fr);
+//            // считаем сначала первую строку
+//            String line = reader.readLine();
+//            while (line != null) {
+//                if (!line.equals("")) {
+//                    sb.append(line);
+//                    break;
+//                }
+//                // считываем остальные строки в цикле
+//                line = reader.readLine();
+//            }
         } catch (FileNotFoundException e) {
             log.warn("FileNotFoundException: " + e.getMessage());
             return false;
@@ -125,6 +125,7 @@ public class ReaderServiceImpl {
                 Integer tara = Integer.parseInt(matcher.group("tara")) * 100;
                 Integer netto = Integer.parseInt(matcher.group("netto")) * 1000;
                 Integer destinationStation = Integer.parseInt(matcher.group("destinationStation"));
+                Integer cargoCode = Integer.parseInt(matcher.group("cargoCode"));
 
                 Wagon wagon = new Wagon();
                 wagon.setNo(no);
@@ -132,6 +133,7 @@ public class ReaderServiceImpl {
                 wagon.setWNumber(wNumber);
                 wagon.setNetto(netto);
                 wagon.setDestinationStation(destinationStation);
+                wagon.setCargoCode(cargoCode);
                 wagonList.add(wagon);
             }
 

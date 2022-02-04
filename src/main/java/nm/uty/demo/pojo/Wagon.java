@@ -11,4 +11,5 @@ public class Wagon implements Serializable {
     private Integer netto;
     private Integer tara;
     private Integer destinationStation;
+    private Integer cargoCode;
 }

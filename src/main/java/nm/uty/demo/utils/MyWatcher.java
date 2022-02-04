@@ -2,12 +2,16 @@ package nm.uty.demo.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import nm.uty.demo.service.ReaderServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -19,6 +23,7 @@ public class MyWatcher {
 
     private ReaderServiceImpl readerService;
 
+    @Autowired
     public MyWatcher(ReaderServiceImpl readerService) {
         this.readerService = readerService;
     }
@@ -52,8 +57,14 @@ public class MyWatcher {
                                     + ". File affected: " + event.context() + ".");
                     log.info("Event kind:" + event.kind()
                             + ". File affected: " + event.context() + ".");
-                    readerService.reader(inPath + File.separator + event.context());
-                    Thread.sleep(3000);
+//                    readerService.reader(inPath + File.separator + event.context());
+//                    Thread.sleep(5000);
+
+                    ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+                    ses.schedule(() -> readerService.reader(inPath + File.separator + event.context()),
+                            5000,
+                            TimeUnit.MILLISECONDS);
+                    ses.shutdown();
                 }
                 key.reset();
             }

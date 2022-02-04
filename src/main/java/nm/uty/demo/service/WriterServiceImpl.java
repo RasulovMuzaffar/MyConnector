@@ -1,5 +1,6 @@
 package nm.uty.demo.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nm.uty.demo.utils.DataCache;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class WriterServiceImpl {
     @Value(value = "${outputFolder}")
     private String myPath;
@@ -25,13 +27,9 @@ public class WriterServiceImpl {
     private String fileName;
 
 
-    private SenderServiceImpl senderService;
-    private final DataCache dataCache;
+    final SenderServiceImpl senderService;
+    final DataCache dataCache;
 
-    public WriterServiceImpl(SenderServiceImpl senderService, DataCache dataCache) {
-        this.senderService = senderService;
-        this.dataCache = dataCache;
-    }
 
     public void writer(List<String> list) {
         dataCache.getIndexes().stream().forEach(idx -> {
