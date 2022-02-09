@@ -17,10 +17,6 @@
     <packaging>jar</packaging>
     <properties>
         <java.version>8</java.version>
-<!--        <deploy.wildfly.host>127.0.0.1</deploy.wildfly.host>-->
-<!--        <deploy.wildfly.port>9990</deploy.wildfly.port>-->
-<!--        <deploy.wildfly.username>root</deploy.wildfly.username>-->
-<!--        <deploy.wildfly.password>20011987</deploy.wildfly.password>-->
     </properties>
     <dependencies>
         <dependency>

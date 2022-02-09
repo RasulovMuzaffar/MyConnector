@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ReaderServiceImpl {
     private final String HEADER922 = "\\(:922\\s+\\d{4}\\s+\\d{3,4}\\s+(?<idx>\\d{4}\\s{0,2}\\d{0,3}\\s{0,2}\\d{4})";
-    private final String REG922 = "(?<no>\\d{2})\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+(?<destinationStation>\\d{5})\\s+\\d{5}\\s+(?<cargoCode>\\d{4})\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
+    private final String REG922 = "(?<no>\\d{2})\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+(?<destinationStation>\\d{5})\\s+(?<cargoCode>\\d{5})\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     //    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     private final String REG57 = "(?<idx>\\d{4}\\+\\s?\\d{0,3}\\+\\d{4})";
 

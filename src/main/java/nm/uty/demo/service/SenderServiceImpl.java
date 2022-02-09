@@ -18,6 +18,17 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +64,7 @@ public class SenderServiceImpl {
                     String.format("http://%s:%s/api/login", remoteServer.replace("_", "."), remoteServerPort), request, String.class);
             if (response.getStatusCode().equals(HttpStatus.OK)) {
                 JSONParser parser = new JSONParser();
-                log.info("token received successfully!");
+                log.info("token received successfully!!!!");
                 try {
                     JSONObject object = (JSONObject) parser.parse(response.getBody());
                     return String.valueOf(object.get("access_token"));
@@ -74,7 +85,6 @@ public class SenderServiceImpl {
             return;
         }
 //dataCache.getIndexesWagons().get(index).
-
 
         /**
          * endpoint - api/paper/upload_lines
@@ -100,6 +110,10 @@ public class SenderServiceImpl {
                             request,
                             String.class);
 
+                    log.info("start writing jsonData to directory");
+                    writeResultToDirectory(jsonData);
+                    log.info("end writing jsonData to directory");
+
                     if (response.getStatusCode().equals(HttpStatus.OK)) {
                         dataCache.delIndex(key);
                         dataCache.getIndexesWagons().remove(key);
@@ -109,7 +123,7 @@ public class SenderServiceImpl {
                         map.put(key, value);
                         dataCache.setIndexesWagons(map);
                     }
-//                    log.info(request.getBody());
+                    log.info(request.getBody());
                     log.info("data with idx: {}, is sended to remote service!", key);
                 } catch (JsonProcessingException e) {
                     log.warn("JsonProcessingException: " + e.getMessage());
@@ -131,5 +145,20 @@ public class SenderServiceImpl {
 //                e.printStackTrace();
 //            }
 //        }
+    }
+
+    private void writeResultToDirectory(String jsonData) {
+        log.info("+++++++++++++++++++++++++++++++++++++");
+        log.info(jsonData);
+        log.info("+++++++++++++++++++++++++++++++++++++");
+        Path path = Paths.get("C:\\demo\\" + Instant.now().toEpochMilli() + ".json");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            writer.write(jsonData);
+            log.info("jsonData is write");
+        } catch (IOException ex) {
+            log.warn("jsonData is do not write");
+            log.warn(ex.getMessage());
+        }
     }
 }
