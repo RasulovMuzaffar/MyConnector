@@ -46,6 +46,8 @@ public class SenderServiceImpl {
     private String login;
     @Value(value = "${remoteServerPassword}")
     private String password;
+    @Value(value = "${jsonFolder}")
+    private String jsonFolder;
 
     final DataCache dataCache;
 
@@ -79,11 +81,11 @@ public class SenderServiceImpl {
     }
 
     public void mySender(String index, Train train) {
-        String token = getToken();
-        if (token == null) {
-            log.warn("token is null!");
-            return;
-        }
+//        String token = getToken();
+//        if (token == null) {
+//            log.warn("token is null!");
+//            return;
+//        }
 //dataCache.getIndexesWagons().get(index).
 
         /**
@@ -91,9 +93,9 @@ public class SenderServiceImpl {
          * body - любой текст
          * headers - {Authorization: Bearer <token>}
          */
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Authorization", "Bearer " + token);
 
 
         for (Map.Entry<String, Train> entry : dataCache.getIndexesWagons().entrySet()) {
@@ -104,17 +106,18 @@ public class SenderServiceImpl {
                 try {
                     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
                     String jsonData = ow.writeValueAsString(value);
-                    HttpEntity<String> request = new HttpEntity<>(jsonData, headers);
-                    ResponseEntity<String> response = restTemplate.postForEntity(
-                            String.format("http://%s:%s/api/paper/upload_lines", remoteServer.replace("_", "."), remoteServerPort),
-                            request,
-                            String.class);
+//                    HttpEntity<String> request = new HttpEntity<>(jsonData, headers);
+//                    ResponseEntity<String> response = restTemplate.postForEntity(
+//                            String.format("http://%s:%s/api/paper/upload_lines", remoteServer.replace("_", "."), remoteServerPort),
+//                            request,
+//                            String.class);
 
                     log.info("start writing jsonData to directory");
-                    writeResultToDirectory(jsonData);
+                    boolean jsonIsCreate = writeResultToDirectory(jsonData);
                     log.info("end writing jsonData to directory");
 
-                    if (response.getStatusCode().equals(HttpStatus.OK)) {
+//                    if (response.getStatusCode().equals(HttpStatus.OK)) {
+                    if (jsonIsCreate) {
                         dataCache.delIndex(key);
                         dataCache.getIndexesWagons().remove(key);
                         dataCache.setSuccessSendIndexes(key);
@@ -123,7 +126,7 @@ public class SenderServiceImpl {
                         map.put(key, value);
                         dataCache.setIndexesWagons(map);
                     }
-                    log.info(request.getBody());
+//                    log.info(request.getBody());
                     log.info("data with idx: {}, is sended to remote service!", key);
                 } catch (JsonProcessingException e) {
                     log.warn("JsonProcessingException: " + e.getMessage());
@@ -147,18 +150,20 @@ public class SenderServiceImpl {
 //        }
     }
 
-    private void writeResultToDirectory(String jsonData) {
+    private boolean writeResultToDirectory(String jsonData) {
         log.info("+++++++++++++++++++++++++++++++++++++");
         log.info(jsonData);
         log.info("+++++++++++++++++++++++++++++++++++++");
-        Path path = Paths.get("C:\\demo\\" + Instant.now().toEpochMilli() + ".json");
+        Path path = Paths.get(jsonFolder + File.separator + Instant.now().toEpochMilli() + ".json");
 
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             writer.write(jsonData);
             log.info("jsonData is write");
+            return true;
         } catch (IOException ex) {
             log.warn("jsonData is do not write");
             log.warn(ex.getMessage());
+            return false;
         }
     }
 }
