@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nm.uty.demo.pojo.Train;
-import nm.uty.demo.pojo.Wagon;
 import nm.uty.demo.utils.DataCache;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -21,16 +20,12 @@ import org.springframework.web.client.RestTemplate;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -113,7 +108,7 @@ public class SenderServiceImpl {
 //                            String.class);
 
                     log.info("start writing jsonData to directory");
-                    boolean jsonIsCreate = writeResultToDirectory(jsonData);
+                    boolean jsonIsCreate = writeResultToDirectory(jsonData, key);
                     log.info("end writing jsonData to directory");
 
 //                    if (response.getStatusCode().equals(HttpStatus.OK)) {
@@ -150,20 +145,36 @@ public class SenderServiceImpl {
 //        }
     }
 
-    private boolean writeResultToDirectory(String jsonData) {
+    private boolean writeResultToDirectory(String jsonData, String index) {
         log.info("+++++++++++++++++++++++++++++++++++++");
         log.info(jsonData);
         log.info("+++++++++++++++++++++++++++++++++++++");
-        Path path = Paths.get(jsonFolder + File.separator + Instant.now().toEpochMilli() + ".json");
+        long now = Instant.now().toEpochMilli();
+        Path path = Paths.get(jsonFolder + File.separator + now + ".json");
 
-        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+        if (!new File("C:\\sendedNL").isDirectory()) {
+            try {
+                Files.createDirectory(Paths.get("C:\\sendedNL"));
+            } catch (IOException e) {
+                log.warn(e.getMessage());
+            }
+        }
+
+        Path path2 = Paths.get("C:\\sendedNL\\" + now + "_" + index.replace(" ", "_") + ".json");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
+             BufferedWriter writer2 = Files.newBufferedWriter(path2, StandardCharsets.UTF_8);) {
             writer.write(jsonData);
             log.info("jsonData is write");
+            writer2.write(jsonData);
+            log.info("jsonData is write to second directory too");
             return true;
         } catch (IOException ex) {
             log.warn("jsonData is do not write");
             log.warn(ex.getMessage());
             return false;
         }
+
+
     }
 }

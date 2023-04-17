@@ -38,7 +38,8 @@ public class MyScheduler {
         this.dataCache = dataCache;
     }
 
-        @Scheduled(fixedDelay = 1800000)
+//        @Scheduled(fixedDelay = 1800000)
+    @Scheduled(cron = "0 */15 * * * ?")
 //    @Scheduled(fixedDelay = 60000)
     public void scheduleFixedDelayTask() {
         log.info("start scheduler");
@@ -56,6 +57,33 @@ public class MyScheduler {
         try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
             writer.write(String.format("(:212 %d %d:57:)", stCodeLarge, stCodeSmall));
             log.info("request spr57 has been sent to ASOUP! request: {}" + String.format("(:212 %d %d:57:)", stCodeLarge, stCodeSmall));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            log.warn("InterruptedException: " + e.getMessage());
+        }
+//            });
+//        else
+        log.info("dataCache is empty!!!");
+    }
+    @Scheduled(cron = "0 */20 * * * ?")
+//    @Scheduled(fixedDelay = 60000)
+    public void scheduleFixedDelayTask91() {
+        log.info("start scheduler 91");
+        log.info("separator " + File.separator);
+        try {
+            Arrays.stream(Objects.requireNonNull(new File(inPath).listFiles())).forEach(File::delete);
+            log.warn("all files is deleted in directory!!!");
+        } catch (Exception e) {
+            log.warn("exception in delete files in directory: {}", e.getMessage());
+        }
+        Path path = Paths.get(outputPath + File.separator + fileName);
+        try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("cp866"))) {
+            writer.write(String.format("(:212 %d %d:91:)", stCodeLarge, stCodeSmall));
+            log.info("request spr91 has been sent to ASOUP! request: {}" + String.format("(:212 %d %d:57:)", stCodeLarge, stCodeSmall));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

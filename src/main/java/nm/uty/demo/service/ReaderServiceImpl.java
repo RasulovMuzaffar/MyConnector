@@ -29,6 +29,8 @@ public class ReaderServiceImpl {
     //    private final String REG922 = "\\d{2}\\s+(?<wNumber>\\d{8})\\s+\\d{4}\\s+(?<netto>\\d{3})\\s+\\d{5}\\s+\\d{5}\\s+\\d{4}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{1}\\s+\\d{2}\\/\\d{2}\\s+\\d{2}\\s+\\d{2}\\s+\\d{3}\\s+(?<tara>\\d{4})";
     private final String REG57 = "(?<idx>\\d{4}\\+\\s?\\d{0,3}\\+\\d{4})";
 
+    private final String REG91 = "(?<idx>\\d{4}\\s{1,3}\\d{1,3}\\s\\d{4})";
+
     final WriterServiceImpl writerService;
     final SenderServiceImpl senderService;
     final DataCache dataCache;
@@ -64,6 +66,7 @@ public class ReaderServiceImpl {
             log.warn("IOException: " + e.getMessage());
             return false;
         }
+        log.info(sb.toString());
         router(filePath, sb.toString());
         return true;
     }
@@ -78,6 +81,8 @@ public class ReaderServiceImpl {
         }
         if (sprNo == 57)
             reader57(filePath);
+        else if (sprNo == 91)
+            reader91(filePath);
         else
             reader922(filePath);
     }
@@ -87,6 +92,22 @@ public class ReaderServiceImpl {
         StringBuilder sb = getStringBuilder(filePath);
 
         pattern = Pattern.compile(REG57, Pattern.MULTILINE);
+        matcher = pattern.matcher(sb.toString());
+        List<String> indexes = new ArrayList<>();
+
+        while (matcher.find()) {
+            String idx = matcher.group("idx");
+            indexes.add(idx);
+            dataCache.setIndexes(parseIdx(idx));
+        }
+        writerService.writer(indexes);
+    }
+
+    private void reader91(String filePath) {
+        log.info("reader91: " + filePath);
+        StringBuilder sb = getStringBuilder(filePath);
+
+        pattern = Pattern.compile(REG91, Pattern.MULTILINE);
         matcher = pattern.matcher(sb.toString());
         List<String> indexes = new ArrayList<>();
 
